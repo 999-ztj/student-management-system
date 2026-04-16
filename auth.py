@@ -1,21 +1,71 @@
-from file_handler import read_passwords, read_users
+from file_handler import check_password, get_user_by_username
+
+
+class User:
+    def __init__(self, user_id, name, role, username):
+        self.user_id = user_id
+        self.name = name
+        self.role = role
+        self.username = username
+
+    def is_admin(self):
+        return self.role == "admin"
+
+    def is_student(self):
+        return self.role == "student"
+
+    def __str__(self):
+        return f"{self.name} ({self.role})"
+
+
+# holds whoever is logged in right now
+current_user = None
+
 
 def login():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+    print("\n" + "=" * 40)
+    print("   Student Management System")
+    print("=" * 40)
 
-    passwords = read_passwords()
+    attempts = 0
+    while attempts < 3:
+        username = input("Username: ").strip()
+        password = input("Password: ").strip()
 
-    for line in passwords:
-        u, p = line.strip().split(",")
+        if not username or not password:
+            print("Username and password cannot be empty.\n")
+            continue
 
-        if u == username and p == password:
-            users = read_users()
+        if check_password(username, password):
+            user_data = get_user_by_username(username)
 
-            for user_line in users:
-                u_name, name, role = user_line.strip().split(",")
+            if user_data is None:
+                print("Account not found in user records. Contact admin.\n")
+                return None
 
-                if u_name == username:
-                    return username, role
+            global current_user
+            current_user = User(
+                user_id=user_data["id"],
+                name=user_data["name"],
+                role=user_data["role"],
+                username=username
+            )
 
-    return None, None
+            print(f"\nWelcome, {current_user.name}!")
+            return current_user
+
+        else:
+            attempts += 1
+            remaining = 3 - attempts
+            if remaining > 0:
+                print(f"Incorrect username or password. {remaining} attempt(s) left.\n")
+            else:
+                print("Too many failed attempts. Exiting.\n")
+
+    return None
+
+
+def logout():
+    global current_user
+    current_user = None
+    print("Logged out successfully.")
