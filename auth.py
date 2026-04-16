@@ -17,6 +17,16 @@ class User:
     def __str__(self):
         return f"{self.name} ({self.role})"
 
+class Student(User):
+    def get_grades(self):
+        from file_handler import get_grades
+        return get_grades(self.user_id)
+
+class Admin(User):
+    def greet(self):
+        return f"Admin {self.name} logged in."
+
+
 
 # holds whoever is logged in right now
 current_user = None
