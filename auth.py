@@ -54,12 +54,20 @@ def login():
                 return None
 
             global current_user
-            current_user = User(
-                user_id=user_data["id"],
-                name=user_data["name"],
-                role=user_data["role"],
-                username=username
-            )
+            if user_data["role"] == "admin":
+                current_user = Admin(
+                    user_id=user_data["id"],
+                    name=user_data["name"],
+                    role=user_data["role"],
+                    username=username
+                )
+            else:
+                current_user = Student(
+                    user_id=user_data["id"],
+                    name=user_data["name"],
+                    role=user_data["role"],
+                    username=username
+                )
 
             print(f"\nWelcome, {current_user.name}!")
             return current_user
