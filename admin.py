@@ -49,8 +49,7 @@ print(Rule())
 
 # CLASS
 class Learner:
-    def __init__(self, V_Roll_No, V_Student_ID, V_Full_Name, V_Address, V_Year, V_Program, V_Group, V_Phone, V_DOB):
-        self.__Roll       = V_Roll_No
+    def __init__(self, V_Student_ID, V_Full_Name, V_Address, V_Year, V_Program, V_Group, V_Phone, V_DOB, V_Role):
         self.__Student_ID = V_Student_ID
         self.__Name       = V_Full_Name
         self.__Address    = V_Address
@@ -59,10 +58,10 @@ class Learner:
         self.__Group      = V_Group
         self.__Phone      = V_Phone
         self.__DOB        = V_DOB
+        self.__Role       = V_Role
 
     def DisplayDetails(self):
         Divider()
-        print(f"  {'Roll No':<18}  {self.__Roll}")
         print(f"  {'Student ID':<18}  {self.__Student_ID}")
         print(f"  {'Name':<18}  {self.__Name}")
         print(f"  {'Address':<18}  {self.__Address}")
@@ -71,6 +70,7 @@ class Learner:
         print(f"  {'Group':<18}  {self.__Group}")
         print(f"  {'Phone':<18}  {self.__Phone}")
         print(f"  {'Date of Birth':<18}  {self.__DOB}")
+        print(f"  {'Role':<18}  {self.__Role}")
         Divider()
 
 
@@ -79,14 +79,10 @@ class Learner:
 Stop = False
 
 # LOAD OR CREATE DATAFRAME
-if os.path.exists("students.csv"):
-    DF = pd.read_csv("students.csv")
-    # Add Student_ID column if it doesn't exist (for backward compatibility)
-    if 'Student_ID' not in DF.columns:
-        DF.insert(1, 'Student_ID', '')
-        DF.to_csv("students.csv", index=False)
+if os.path.exists("users.txt"):
+    DF = pd.read_csv("users.txt", sep=",")
 else:
-    DF = pd.DataFrame(columns=['Roll_No', 'Student_ID', 'Name', 'Address', 'Year', 'Program', 'Group', 'Phone', 'DOB'])
+    DF = pd.DataFrame(columns=['Student_ID', 'Name', 'Address', 'Year', 'Program', 'Group', 'Phone', 'DOB', 'Role'])
 
 while Stop == False:
     print()
@@ -116,27 +112,6 @@ while Stop == False:
         print()
         Section_Header("ADD NEW STUDENT")
 
-        print("  1.  Auto Generate Roll Number  (Recommended)")
-        print("  2.  Enter Roll Number Manually")
-        RollChoice = input("  Enter 1 or 2  >>  ")
-
-        while RollChoice != "1" and RollChoice != "2":
-            print("  Invalid input. Enter only 1 or 2.")
-            RollChoice = input("  Enter 1 or 2  >>  ")
-
-        if RollChoice == "1":
-            if DF.empty:
-                V_Roll_No = "STU001"
-            else:
-                Last_Roll = DF['Roll_No'].str.replace("STU", "").astype(int).max()
-                V_Roll_No = f"STU{Last_Roll + 1:03d}"
-            print(f"  Generated Roll Number:  {V_Roll_No}")
-        else:
-            V_Roll_No = input("  Enter Roll Number:  ")
-            while V_Roll_No in DF['Roll_No'].astype(str).values:
-                print("  Error: Roll Number already exists.")
-                V_Roll_No = input("  Enter a unique Roll Number:  ")
-
         V_Student_ID = input("  Enter Student ID:  ")
         while V_Student_ID in DF['Student_ID'].astype(str).values:
             print("  Error: Student ID already exists.")
@@ -150,10 +125,26 @@ while Stop == False:
         V_Phone     = input("  Enter Phone Number:  ")
         V_DOB       = input("  Enter Date of Birth (YYYY-MM-DD):  ")
 
-        NewStudent = Learner(V_Roll_No, V_Student_ID, V_Full_Name, V_Address, V_Year, V_Program, V_Group, V_Phone, V_DOB)
+        print()
+        print("  1.  Student")
+        print("  2.  Admin")
+        while True:
+            try:
+                RoleChoice = int(input("  Enter Role (1 or 2)  >>  "))
+                if RoleChoice == 1:
+                    V_Role = "student"
+                    break
+                elif RoleChoice == 2:
+                    V_Role = "admin"
+                    break
+                else:
+                    print("  Please enter 1 or 2.")
+            except ValueError:
+                print("  Invalid input. Please enter a number.")
+
+        NewStudent = Learner(V_Student_ID, V_Full_Name, V_Address, V_Year, V_Program, V_Group, V_Phone, V_DOB, V_Role)
 
         New_Row = pd.DataFrame([{
-            'Roll_No':     V_Roll_No,
             'Student_ID':  V_Student_ID,
             'Name':        V_Full_Name,
             'Address':     V_Address,
@@ -161,11 +152,12 @@ while Stop == False:
             'Program':     V_Program,
             'Group':       V_Group,
             'Phone':       V_Phone,
-            'DOB':         V_DOB
+            'DOB':         V_DOB,
+            'Role':        V_Role
         }])
 
         DF = pd.concat([DF, New_Row], ignore_index=True)
-        DF.to_csv("students.csv", index=False)
+        DF.to_csv("users.txt", sep=",", index=False)
 
         print("\n  Student added successfully.")
         NewStudent.DisplayDetails()
@@ -184,28 +176,28 @@ while Stop == False:
     elif Choice == 3:  # SEARCH
         print()
         Section_Header("SEARCH STUDENT")
-        Search_Roll = input("  Enter Roll Number to Search  >>  ")
+        Search_ID = input("  Enter Student ID to Search  >>  ")
 
-        Result = DF[DF['Roll_No'].astype(str) == Search_Roll]
+        Result = DF[DF['Student_ID'].astype(str) == Search_ID]
 
         if Result.empty:
-            print(f"\n  No student found with Roll No: {Search_Roll}")
+            print(f"\n  No student found with Student ID: {Search_ID}")
         else:
             print("\n  Student record found.")
             for Index, row in Result.iterrows():
-                Temp_Student = Learner(row['Roll_No'], row['Student_ID'], row['Name'], row['Address'],
+                Temp_Student = Learner(row['Student_ID'], row['Name'], row['Address'],
                                        row['Year'], row['Program'], row['Group'],
-                                       row['Phone'], row['DOB'])
+                                       row['Phone'], row['DOB'], row['Role'])
                 Temp_Student.DisplayDetails()
 
     elif Choice == 4:  # UPDATE
         print()
         Section_Header("UPDATE STUDENT")
-        Update_Roll = input("  Enter Roll Number to Update  >>  ")
+        Update_ID = input("  Enter Student ID to Update  >>  ")
 
-        Result = DF[DF['Roll_No'].astype(str) == Update_Roll]
+        Result = DF[DF['Student_ID'].astype(str) == Update_ID]
         if Result.empty:
-            print(f"\n  No student found with Roll No: {Update_Roll}")
+            print(f"\n  No student found with Student ID: {Update_ID}")
         else:
             Current = Result.iloc[0]
 
@@ -215,14 +207,14 @@ while Stop == False:
             print(Box_Row("  U P D A T E   F I E L D S".center(W - 4)))
             print(Box_Row(""))
             print(Box_Mid())
-            print(Box_Row(f"  1.  Student ID     [ {Current['Student_ID']} ]"))
-            print(Box_Row(f"  2.  Full Name      [ {Current['Name']} ]"))
-            print(Box_Row(f"  3.  Address        [ {Current['Address']} ]"))
-            print(Box_Row(f"  4.  Year           [ {Current['Year']} ]"))
-            print(Box_Row(f"  5.  Program        [ {Current['Program']} ]"))
-            print(Box_Row(f"  6.  Group          [ {Current['Group']} ]"))
-            print(Box_Row(f"  7.  Phone          [ {Current['Phone']} ]"))
-            print(Box_Row(f"  8.  Date of Birth  [ {Current['DOB']} ]"))
+            print(Box_Row(f"  1.  Full Name      [ {Current['Name']} ]"))
+            print(Box_Row(f"  2.  Address        [ {Current['Address']} ]"))
+            print(Box_Row(f"  3.  Year           [ {Current['Year']} ]"))
+            print(Box_Row(f"  4.  Program        [ {Current['Program']} ]"))
+            print(Box_Row(f"  5.  Group          [ {Current['Group']} ]"))
+            print(Box_Row(f"  6.  Phone          [ {Current['Phone']} ]"))
+            print(Box_Row(f"  7.  Date of Birth  [ {Current['DOB']} ]"))
+            print(Box_Row(f"  8.  Role           [ {Current['Role']} ]"))
             print(Box_Row(f"  9.  Update All Fields"))
             print(Box_Row(""))
             print(Box_Bot())
@@ -239,7 +231,6 @@ while Stop == False:
 
             Divider()
 
-            New_Student_ID = Current['Student_ID']
             New_Name       = Current['Name']
             New_Address    = Current['Address']
             New_Year       = Current['Year']
@@ -247,66 +238,75 @@ while Stop == False:
             New_Group      = Current['Group']
             New_Phone      = Current['Phone']
             New_DOB        = Current['DOB']
+            New_Role       = Current['Role']
 
             if Field_Choice == 1 or Field_Choice == 9:
-                Entered_ID = input(f"  Student ID     [{Current['Student_ID']}]:  ")
-                if Entered_ID and Entered_ID != Current['Student_ID']:
-                    while Entered_ID in DF['Student_ID'].astype(str).values:
-                        print("  Error: Student ID already exists.")
-                        Entered_ID = input(f"  Student ID     [{Current['Student_ID']}]:  ")
-                    New_Student_ID = Entered_ID
-                elif Entered_ID:
-                    New_Student_ID = Entered_ID
-
-            if Field_Choice == 2 or Field_Choice == 9:
                 Entered_Name = input(f"  Full Name      [{Current['Name']}]:  ")
                 if Entered_Name:
                     New_Name = Entered_Name
 
-            if Field_Choice == 3 or Field_Choice == 9:
+            if Field_Choice == 2 or Field_Choice == 9:
                 Entered_Address = input(f"  Address        [{Current['Address']}]:  ")
                 if Entered_Address:
                     New_Address = Entered_Address
 
-            if Field_Choice == 4 or Field_Choice == 9:
+            if Field_Choice == 3 or Field_Choice == 9:
                 Entered_Year = input(f"  Year           [{Current['Year']}]:  ")
                 if Entered_Year:
                     New_Year = Entered_Year
 
-            if Field_Choice == 5 or Field_Choice == 9:
+            if Field_Choice == 4 or Field_Choice == 9:
                 Entered_Program = input(f"  Program        [{Current['Program']}]:  ")
                 if Entered_Program:
                     New_Program = Entered_Program
 
-            if Field_Choice == 6 or Field_Choice == 9:
+            if Field_Choice == 5 or Field_Choice == 9:
                 Entered_Group = input(f"  Group          [{Current['Group']}]:  ")
                 if Entered_Group:
                     New_Group = Entered_Group
 
-            if Field_Choice == 7 or Field_Choice == 9:
+            if Field_Choice == 6 or Field_Choice == 9:
                 Entered_Phone = input(f"  Phone          [{Current['Phone']}]:  ")
                 if Entered_Phone:
                     New_Phone = Entered_Phone
 
-            if Field_Choice == 8 or Field_Choice == 9:
+            if Field_Choice == 7 or Field_Choice == 9:
                 Entered_DOB = input(f"  Date of Birth  [{Current['DOB']}]:  ")
                 if Entered_DOB:
                     New_DOB = Entered_DOB
 
-            DF.loc[DF['Roll_No'].astype(str) == Update_Roll,
-            ['Student_ID', 'Name', 'Address', 'Year', 'Program', 'Group', 'Phone', 'DOB']] = \
-                [New_Student_ID, New_Name, New_Address, New_Year, New_Program, New_Group, New_Phone, New_DOB]
+            if Field_Choice == 8 or Field_Choice == 9:
+                print(f"\n  Current Role: {Current['Role']}")
+                print("  1.  Student")
+                print("  2.  Admin")
+                while True:
+                    try:
+                        RoleChoice = int(input("  Enter Role (1 or 2)  >>  "))
+                        if RoleChoice == 1:
+                            New_Role = "student"
+                            break
+                        elif RoleChoice == 2:
+                            New_Role = "admin"
+                            break
+                        else:
+                            print("  Please enter 1 or 2.")
+                    except ValueError:
+                        print("  Invalid input. Please enter a number.")
 
-            DF.to_csv("students.csv", index=False)
+            DF.loc[DF['Student_ID'].astype(str) == Update_ID,
+            ['Name', 'Address', 'Year', 'Program', 'Group', 'Phone', 'DOB', 'Role']] = \
+                [New_Name, New_Address, New_Year, New_Program, New_Group, New_Phone, New_DOB, New_Role]
+
+            DF.to_csv("users.txt", sep=",", index=False)
             print("\n  Student details updated successfully.")
 
     elif Choice == 5:  # DELETE
         print()
         Section_Header("DELETE STUDENT")
-        Delete_Roll = input("  Enter Roll Number to Delete  >>  ")
+        Delete_ID = input("  Enter Student ID to Delete  >>  ")
 
-        if Delete_Roll not in DF['Roll_No'].astype(str).values:
-            print(f"\n  No student found with Roll No: {Delete_Roll}")
+        if Delete_ID not in DF['Student_ID'].astype(str).values:
+            print(f"\n  No student found with Student ID: {Delete_ID}")
         else:
             Confirm = input("  Are you sure you want to delete this student? (Y / N):  ")
             while Confirm.lower() != "y" and Confirm.lower() != "n":
@@ -314,9 +314,9 @@ while Stop == False:
                 Confirm = input("  Are you sure? (Y / N):  ")
 
             if Confirm.lower() == "y":
-                DF = DF[DF['Roll_No'].astype(str) != Delete_Roll]
-                DF.to_csv("students.csv", index=False)
-                print(f"\n  Student {Delete_Roll} has been deleted.")
+                DF = DF[DF['Student_ID'].astype(str) != Delete_ID]
+                DF.to_csv("users.txt", sep=",", index=False)
+                print(f"\n  Student {Delete_ID} has been deleted.")
             else:
                 print("\n  Delete cancelled.")
 
