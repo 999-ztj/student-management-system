@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-# ====================== WELCOME LOGO ======================
+# Welcome
 
 def PrintLogo():
     print("""
