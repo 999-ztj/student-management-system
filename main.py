@@ -3,7 +3,11 @@ from auth import login, logout, current_user
 
 
 def admin_menu():
-    from admin import admin_control
+    try:
+        from admin import admin_control
+    except ImportError:
+        print("admin.py not ready yet.")
+        return
     admin_control()
 
 
