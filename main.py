@@ -4,36 +4,11 @@ from auth import login, logout, current_user
 
 def admin_menu():
     try:
-        from admin import add_student, view_all_students, update_student, delete_student, search_student
+        from admin import admin_control
     except ImportError:
         print("admin.py not ready yet.")
         return
-
-    while True:
-        print("\n── Admin Menu ─────────────────")
-        print("1. Add student")
-        print("2. View all students")
-        print("3. Update student")
-        print("4. Delete student")
-        print("5. Search student")
-        print("0. Logout")
-
-        choice = input("Choose: ").strip()
-
-        if choice == "1":
-            add_student()
-        elif choice == "2":
-            view_all_students()
-        elif choice == "3":
-            update_student()
-        elif choice == "4":
-            delete_student()
-        elif choice == "5":
-            search_student()
-        elif choice == "0":
-            break
-        else:
-            print("Invalid option.")
+    admin_control()
 
 
 def student_menu():
