@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-def admin_pannel():
+def admin_control():
     # Welcome
 
     def PrintLogo():
