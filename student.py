@@ -31,11 +31,18 @@ def view_grades(user_id):
     grades = get_grades(user_id)
     if grades:
         print("\n--- GRADES ---")
-        print("Math:", grades["math"])
-        print("Science:", grades["science"])
-        print("English:", grades["english"])
-        print("CS:", grades["cs"])
-        print("Stats:", grades["stats"])
+        subjects = ["math", "science", "english", "cs", "stats"]
+        marks = []
+        for s in subjects:
+            print(f"{s.capitalize()}: {grades[s]}")
+            try:
+                marks.append(float(grades[s]))
+            except ValueError:
+                pass
+        if marks:
+            avg = sum(marks) / len(marks)
+            print(f"Average: {avg:.2f}")
+            print("Status:", "PASS" if avg >= 50 else "AT RISK")
     else:
         print("Grades not found.")
 
@@ -51,16 +58,49 @@ def view_eca(user_id):
 
 
 def update_profile(user_id):
+    from file_handler import read_passwords, write_passwords
     users = read_users()
 
     for user in users:
         if user["id"] == user_id:
-            new_name = input("Enter new name: ")
-            user["name"] = new_name
+            print(f"\n  Current Name: {user['name']}")
+            print(f"  Current Username: {user['username']}")
+            print("\n  What would you like to update?")
+            print("  1. Name")
+            print("  2. Username")
+            print("  3. Both")
+
+            while True:
+                try:
+                    choice = int(input("  Enter choice (1-3): "))
+                    if choice in [1, 2, 3]:
+                        break
+                    print("  Enter 1, 2, or 3.")
+                except ValueError:
+                    print("  Invalid input.")
+
+            if choice in [1, 3]:
+                new_name = input("  Enter new name: ").strip()
+                if new_name:
+                    user["name"] = new_name
+
+            if choice in [2, 3]:
+                new_username = input("  Enter new username: ").strip()
+                if new_username:
+                    # Update username in passwords.txt too
+                    old_username = user["username"]
+                    passwords = read_passwords()
+                    for p in passwords:
+                        if p["username"] == old_username:
+                            p["username"] = new_username
+                            break
+                    write_passwords(passwords)
+                    user["username"] = new_username
+
             break
 
     write_users(users)
-    print("Profile updated successfully!")
+    print("  Profile updated successfully!")
 
 
 # ===============================

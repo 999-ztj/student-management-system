@@ -123,6 +123,16 @@ def get_grades(student_id):
     return None
 
 
+def write_grades(grades):
+    try:
+        with open(GRADES_FILE, "w") as f:
+            f.write("id,math,science,english,cs,stats\n")
+            for g in grades:
+                f.write(f"{g['id']},{g['math']},{g['science']},{g['english']},{g['cs']},{g['stats']}\n")
+    except Exception as e:
+        print(f"Error writing grades: {e}")
+
+
 # ── ECA ────────────────────────────────────────────────────────────────────
 
 def read_eca():
@@ -141,3 +151,13 @@ def read_eca():
 
 def get_eca(student_id):
     return [e["activity"] for e in read_eca() if e["id"] == student_id]
+
+
+def write_eca(eca):
+    try:
+        with open(ECA_FILE, "w") as f:
+            f.write("id,activity\n")
+            for e in eca:
+                f.write(f"{e['id']},{e['activity']}\n")
+    except Exception as e:
+        print(f"Error writing ECA: {e}")

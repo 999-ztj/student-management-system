@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from file_handler import add_password, read_passwords, write_passwords, read_grades, write_grades, read_eca, write_eca, get_eca
 
 def admin_control():
     # Welcome
@@ -82,19 +83,21 @@ def admin_control():
         print(Box_Row("A D M I N   P A N E L".center(W - 4)))
         print(Box_Row(""))
         print(Box_Mid())
-        print(Box_Row("  1.  Add Record                     4.  Update Records"))
-        print(Box_Row("  2.  Display All Records             5.  Delete Records"))
-        print(Box_Row("  3.  Search Records                  6.  Exit"))
+        print(Box_Row("  1.  Add User                       6.  Manage Grades"))
+        print(Box_Row("  2.  Display All Users               7.  Manage ECA"))
+        print(Box_Row("  3.  Search User                     8.  Analytics Dashboard"))
+        print(Box_Row("  4.  Update User                     9.  Exit"))
+        print(Box_Row("  5.  Delete User"))
         print(Box_Row(""))
         print(Box_Bot())
 
         while True:
             try:
-                Choice = int(input("\n  Enter your choice (1-6)  >>  "))
-                if 1 <= Choice <= 6:
+                Choice = int(input("\n  Enter your choice (1-9)  >>  "))
+                if 1 <= Choice <= 9:
                     break
                 else:
-                    print("  Please enter a number between 1 and 6.")
+                    print("  Please enter a number between 1 and 9.")
             except ValueError:
                 print("  Invalid input. Please enter a number.")
 
@@ -109,6 +112,7 @@ def admin_control():
 
             V_Name = input("  Enter Name:  ")
             V_Username = input("  Enter Username:  ")
+            V_Password = input("  Enter Password:  ")
 
             print()
             print("  1.  Student")
@@ -139,6 +143,7 @@ def admin_control():
 
             DF = pd.concat([DF, New_Row], ignore_index=True)
             DF.to_csv("users.txt", sep=",", index=False)
+            add_password(V_Username, V_Password)
 
             print("\n  User added successfully.")
             NewUser.DisplayDetails()
@@ -259,7 +264,91 @@ def admin_control():
                 else:
                     print("\n  Cancelled.")
 
-        elif Choice == 6:
+        elif Choice == 6:  # MANAGE GRADES
+            print()
+            Section_Header("MANAGE GRADES")
+            grades = read_grades()
+            if not grades:
+                print("\n  No grade records found.")
+            else:
+                print(f"\n  {'ID':<10} {'Math':>6} {'Science':>8} {'English':>8} {'CS':>6} {'Stats':>6}")
+                Divider()
+                for g in grades:
+                    print(f"  {g['id']:<10} {g['math']:>6} {g['science']:>8} {g['english']:>8} {g['cs']:>6} {g['stats']:>6}")
+
+            print("\n  Options:")
+            print("  1. Add grades for a student")
+            print("  2. Update grades for a student")
+            while True:
+                try:
+                    GradeChoice = int(input("  Enter choice (1-2) >> "))
+                    if GradeChoice in [1, 2]:
+                        break
+                    print("  Enter 1 or 2.")
+                except ValueError:
+                    print("  Invalid input.")
+
+            G_ID = input("  Enter Student ID: ").strip()
+
+            try:
+                math_v    = float(input("  Math mark: "))
+                science_v = float(input("  Science mark: "))
+                english_v = float(input("  English mark: "))
+                cs_v      = float(input("  CS mark: "))
+                stats_v   = float(input("  Stats mark: "))
+            except ValueError:
+                print("  Invalid mark entered. Must be a number.")
+            else:
+                existing = [g for g in grades if g["id"] != G_ID]
+                existing.append({"id": G_ID, "math": math_v, "science": science_v,
+                                  "english": english_v, "cs": cs_v, "stats": stats_v})
+                write_grades(existing)
+                print("  Grades saved successfully.")
+
+        elif Choice == 7:  # MANAGE ECA
+            print()
+            Section_Header("MANAGE ECA")
+            eca_records = read_eca()
+            if not eca_records:
+                print("\n  No ECA records found.")
+            else:
+                print(f"\n  {'ID':<10} {'Activity'}")
+                Divider()
+                for e in eca_records:
+                    print(f"  {e['id']:<10} {e['activity']}")
+
+            print("\n  Options:")
+            print("  1. Add ECA activity for a student")
+            print("  2. Delete all ECA for a student")
+            while True:
+                try:
+                    ECAChoice = int(input("  Enter choice (1-2) >> "))
+                    if ECAChoice in [1, 2]:
+                        break
+                    print("  Enter 1 or 2.")
+                except ValueError:
+                    print("  Invalid input.")
+
+            E_ID = input("  Enter Student ID: ").strip()
+
+            if ECAChoice == 1:
+                activity = input("  Enter activity name: ").strip()
+                eca_records.append({"id": E_ID, "activity": activity})
+                write_eca(eca_records)
+                print("  ECA activity added.")
+            elif ECAChoice == 2:
+                updated = [e for e in eca_records if e["id"] != E_ID]
+                write_eca(updated)
+                print("  ECA records for student deleted.")
+
+        elif Choice == 8:  # ANALYTICS
+            try:
+                from analytics import analytics_menu
+                analytics_menu()
+            except ImportError:
+                print("  analytics.py not available.")
+
+        elif Choice == 9:
             Stop = True
 
         if not Stop:
