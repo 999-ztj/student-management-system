@@ -6,29 +6,9 @@ from file_handler import read_users, get_grades, get_eca, write_users
 # ===============================
 
 def get_user_data(user_id):
-
     for user in read_users():
-
         if user["id"] == user_id:
-
             return user
-
-    return None
-
-
-def get_grades(user_id):
-    grades = read_file("grades.txt")
-    for g in grades:
-        if g[0] == user_id:
-            return g
-    return None
-
-
-def get_eca(user_id):
-    eca = read_file("eca.txt")
-    for e in eca:
-        if e[0] == user_id:
-            return e
     return None
 
 
@@ -40,9 +20,9 @@ def view_profile(user_id):
     user = get_user_data(user_id)
     if user:
         print("\n--- PROFILE ---")
-        print("ID:", user[0])
-        print("Name:", user[1])
-        print("Role:", user[2])
+        print("ID:", user["id"])
+        print("Name:", user["name"])
+        print("Role:", user["role"])
     else:
         print("User not found.")
 
@@ -51,39 +31,40 @@ def view_grades(user_id):
     grades = get_grades(user_id)
     if grades:
         print("\n--- GRADES ---")
-        print("Math:", grades[1])
-        print("Science:", grades[2])
-        print("English:", grades[3])
-        print("CS:", grades[4])
-        print("Stats:", grades[5])
+        print("Math:", grades["math"])
+        print("Science:", grades["science"])
+        print("English:", grades["english"])
+        print("CS:", grades["cs"])
+        print("Stats:", grades["stats"])
     else:
         print("Grades not found.")
 
 
 def view_eca(user_id):
-    eca = get_eca(user_id)
-    if eca:
+    eca_list = get_eca(user_id)
+    if eca_list:
         print("\n--- ECA ---")
-        print("Activity:", eca[1])
+        for activity in eca_list:
+            print("Activity:", activity)
     else:
         print("No ECA found.")
 
 
 def update_profile(user_id):
-    users = read_file("users.txt")
+    users = read_users()
 
     for user in users:
-        if user[0] == user_id:
+        if user["id"] == user_id:
             new_name = input("Enter new name: ")
-            user[1] = new_name
+            user["name"] = new_name
             break
 
-    write_file("users.txt", users)
+    write_users(users)
     print("Profile updated successfully!")
 
 
 # ===============================
-# Student Menu
+# Student Menu (unchanged)
 # ===============================
 
 def student_menu(user_id):

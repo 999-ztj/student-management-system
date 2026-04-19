@@ -11,7 +11,7 @@ def admin_menu():
     admin_control()
 
 
-def student_menu():
+def student_menu(user_id):
     try:
         from student import view_profile, view_grades, view_eca, update_profile
     except ImportError:
@@ -29,13 +29,13 @@ def student_menu():
         choice = input("Choose: ").strip()
 
         if choice == "1":
-            view_profile()
+            view_profile(user_id)
         elif choice == "2":
-            view_grades()
+            view_grades(user_id)
         elif choice == "3":
-            view_eca()
+            view_eca(user_id)
         elif choice == "4":
-            update_profile()
+            update_profile(user_id)
         elif choice == "0":
             break
         else:
@@ -52,7 +52,7 @@ def main():
     if user.is_admin():
         admin_menu()
     elif user.is_student():
-        student_menu()
+        student_menu(user.user_id)
     else:
         print(f"Unknown role: {user.role}")
 
