@@ -1,4 +1,5 @@
-from file_handler import read_file, write_file
+from file_handler import read_users, get_grades, get_eca, write_users
+
 
 # ===============================
 # Helper Functions
