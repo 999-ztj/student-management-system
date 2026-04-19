@@ -6,10 +6,13 @@ from file_handler import read_users, get_grades, get_eca, write_users
 # ===============================
 
 def get_user_data(user_id):
-    users = read_file("users.txt")
-    for user in users:
-        if user[0] == user_id:
+
+    for user in read_users():
+
+        if user["id"] == user_id:
+
             return user
+
     return None
 
 
