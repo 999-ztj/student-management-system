@@ -9,6 +9,14 @@ except ImportError:
     print("  [Warning] matplotlib not installed. Charts will be skipped.")
     print("  Run: pip install matplotlib\n")
 
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+    print("  [Warning] numpy not installed. Some charts will be skipped.")
+    print("  Run: pip install numpy\n")
+
 
 # ── File paths (mirror file_handler.py) ────────────────────────────────────
 USERS_FILE   = "users.txt"
@@ -193,10 +201,9 @@ def show_grade_trends():
     _divider()
 
     # ── Chart ──────────────────────────────────────────────────────────────
-    if MATPLOTLIB_AVAILABLE and all_averages:
+    if MATPLOTLIB_AVAILABLE and NUMPY_AVAILABLE and all_averages:
         n_students = len(all_averages)
         n_subjects = len(SUBJECTS)
-        import numpy as np
         x      = np.arange(n_subjects)
         width  = 0.8 / max(n_students, 1)
         colors = plt.cm.tab10.colors
