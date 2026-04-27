@@ -239,6 +239,12 @@ def admin_control():
                 if Field == 3 or Field == 4:
                     val = input(f"  Username [{Current['username']}]: ")
                     if val:
+                        passwords = read_passwords()
+                        for p in passwords:
+                            if p["username"] == Current['username']:
+                                p["username"] = val
+                                break
+                        write_passwords(passwords)
                         New_Username = val
 
                 DF.loc[DF['id'].astype(str) == Update_ID,
@@ -258,8 +264,12 @@ def admin_control():
                 Confirm = input("  Confirm delete (Y/N): ")
 
                 if Confirm.lower() == "y":
+                    Username_To_Delete = DF[DF['id'].astype(str) == Delete_ID]['username'].values[0]
                     DF = DF[DF['id'].astype(str) != Delete_ID]
                     DF.to_csv("users.txt", sep=",", index=False)
+                    passwords = read_passwords()
+                    passwords = [p for p in passwords if p["username"] != Username_To_Delete]
+                    write_passwords(passwords)
                     print("\n  User deleted.")
                 else:
                     print("\n  Cancelled.")
