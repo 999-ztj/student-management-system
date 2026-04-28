@@ -1,9 +1,6 @@
 from file_handler import read_users, get_grades, get_eca, write_users
 
-
-# ===============================
 # Helper Functions
-# ===============================
 
 def get_user_data(user_id):
     for user in read_users():
@@ -12,9 +9,7 @@ def get_user_data(user_id):
     return None
 
 
-# ===============================
 # Main Student Features
-# ===============================
 
 def view_profile(user_id):
     user = get_user_data(user_id)
@@ -103,9 +98,8 @@ def update_profile(user_id):
     print("  Profile updated successfully!")
 
 
-# ===============================
+
 # Student Menu (unchanged)
-# ===============================
 
 def student_menu(user_id):
     while True:
